@@ -1,5 +1,5 @@
 import typing
-
+from fastapi.middleware.cors import CORSMiddleware
 import numpy
 from fastapi import FastAPI
 from mis_clases.estudiante import Estudiante, EstudianteResponse
@@ -10,28 +10,33 @@ import uvicorn
 
 app = FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/registrar")
-def my_function(estudiante: Estudiante) -> dict:
+def my_function(estudiante: Estudiante):
     response = EstudianteResponse()
-    response.nombre = estudiante.nombre
+    response.edad = estudiante.obtener_edad()
     response.identificacion = estudiante.identificacion
     try:
-        response.edad = estudiante.obtener_edad()
+        response.nombre = estudiante.nombre
     except ValidationError as e:
-        print(e)
+        return ValueError("Debe ingresar un nombre!", e)
 
     response.sexo = estudiante.sexo
     response.promedio = estudiante.obtener_promedio()
     return dict(response)
 
-@app.get("/")
-def myget(identificacion: str):
-    return next(filter(lambda estudiante: estudiante.identificacion == identificacion, Estudiantes), None)
 
 @app.get("/filtrar")
 def filtrar(calificacion: int) -> typing.List:
     return [estudiante.nombre for estudiante in Estudiantes if numpy.mean(estudiante.notas) >= calificacion]
-
 
 
 if __name__ == "__main__":

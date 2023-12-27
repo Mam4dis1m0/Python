@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 from typing import List
 from numpy import mean
 
@@ -24,6 +24,7 @@ class Estudiante(BaseModel):
     @field_validator("nombre")
     def validar_nombre(cls, value):
         if value != "":
+
             return value
         raise ValueError("Debe ingresar un nombre!")
 
